@@ -32,10 +32,10 @@ def _make_temp_data(tmp_path):
     df["target"] = y
 
     # TODO 4: Luu 160 dong dau lam tap huan luyen, 40 dong cuoi lam tap holdout
-    # train_path = str(tmp_path / "train.csv")
-    # eval_path  = str(tmp_path / "holdout.csv")
-    # df.iloc[:160].to_csv(train_path, index=False)
-    # df.iloc[160:].to_csv(eval_path,  index=False)
+    train_path = str(tmp_path / "train.csv")
+    eval_path = str(tmp_path / "holdout.csv")
+    df.iloc[:160].to_csv(train_path, index=False)
+    df.iloc[160:].to_csv(eval_path, index=False)
 
     # TODO 5: Tra ve (train_path, eval_path)
     return train_path, eval_path
