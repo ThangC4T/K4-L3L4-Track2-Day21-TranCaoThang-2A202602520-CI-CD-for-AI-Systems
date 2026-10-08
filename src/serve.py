@@ -8,7 +8,7 @@ app = FastAPI()
 
 ARTIFACT_BUCKET = os.environ.get("ARTIFACT_BUCKET")
 MODEL_KEY = "artifacts/current/model.joblib"
-MODEL_PATH = os.path.expanduser("~/models/model.joblib")
+MODEL_PATH = os.path.abspath("models/model.joblib")
 
 
 def download_model():
@@ -19,11 +19,19 @@ def download_model():
     GOOGLE_APPLICATION_CREDENTIALS de xac thuc (duoc dat trong systemd service).
     """
     if not ARTIFACT_BUCKET:
-        raise RuntimeError("ARTIFACT_BUCKET is not configured")
+        if os.path.exists(MODEL_PATH):
+            print("ARTIFACT_BUCKET not configured; using local model.")
+            return
+        raise RuntimeError("ARTIFACT_BUCKET is not configured and no local model exists")
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
-    client = boto3.client("s3")
-
-    client.download_file(ARTIFACT_BUCKET, MODEL_KEY, MODEL_PATH)
+    try:
+        client = boto3.client("s3")
+        client.download_file(ARTIFACT_BUCKET, MODEL_KEY, MODEL_PATH)
+    except Exception as exc:
+        if os.path.exists(MODEL_PATH):
+            print(f"S3 model download failed ({exc}); using local model.")
+            return
+        raise
 
     print("Model da duoc tai xuong tu cloud storage.")
 
